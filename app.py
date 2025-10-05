@@ -214,7 +214,7 @@ def internal_error(error):
 
 if __name__ == '__main__':
     # Modo desarrollo
-    print("\Iniciando servidor Flask...")
+    print("🚀 Iniciando servidor Flask...")
     print("- Endpoints disponibles:")
     print("   GET  /health")
     print("   GET  /model-info")
