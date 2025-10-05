@@ -43,6 +43,10 @@ weather_api = MeteomaticsWeatherAPI(
 
 print("API lista para recibir peticiones")
 
+@app.route('/')
+def index():
+    return "API de Predicción de Incendios activa", 200
+
 
 @app.route('/health', methods=['GET'])
 def health_check():

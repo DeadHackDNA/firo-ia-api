@@ -14,7 +14,8 @@ workers = 4
 worker_class = "sync"
 
 # Timeout for requests (in seconds)
-timeout = 120
+# Aumentado para cold starts y carga del modelo
+timeout = 300
 
 # Keep-alive connections
 keepalive = 5
