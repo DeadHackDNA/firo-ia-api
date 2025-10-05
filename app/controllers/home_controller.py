@@ -1,2 +1,2 @@
 def home():
-    return "Hello, world!"
+    return "Ok"
