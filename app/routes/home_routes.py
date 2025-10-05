@@ -10,44 +10,39 @@ home_bp = Blueprint('home', __name__)
 MODEL_PATH = "model_1.pkl"
 with open(MODEL_PATH, "rb") as f:
     model_data = joblib.load(f)
-regional_models = model_data["regional_models"]
-print("Regiones disponibles:", list(regional_models.keys()))
-
-for region, info in regional_models.items():
-    print(f"\n🌍 Región: {region}")
-    print("Claves internas:", list(info.keys()))
-print(regional_models["south_america"]["features"])
+print("Regiones disponibles:", list(model_data.keys()))
 
 @home_bp.route('/')
 def index():
     return home()
 
-@home_bp.route('/predict')
+@home_bp.route('/predict', methods=['POST'])
 def predict():
     try:
-        data = {
-            "bbox_corners": {
-                "top_left": [-14.219889, -71.271138],
-                "bottom_right": [-14.306682, -71.176567]
-            },
-            "forecast_date": "2025-10-06"
-        }
+        body = request.get_json()
+        # data = {
+        #     "bbox_corners": {
+        #         "top_left": [-14.219889, -71.271138],
+        #         "bottom_right": [-14.306682, -71.176567]
+        #     },
+        #     "forecast_date": "2025-10-06"
+        # }
 
-        # Promediamos el área como punto de referencia
-        lat = (data["bbox_corners"]["top_left"][0] + data["bbox_corners"]["bottom_right"][0]) / 2
-        lon = (data["bbox_corners"]["top_left"][1] + data["bbox_corners"]["bottom_right"][1]) / 2
+        # # Promediamos el área como punto de referencia
+        # lat = (data["bbox_corners"]["top_left"][0] + data["bbox_corners"]["bottom_right"][0]) / 2
+        # lon = (data["bbox_corners"]["top_left"][1] + data["bbox_corners"]["bottom_right"][1]) / 2
 
-        # Valores simulados o predeterminados (ajusta según tu dataset real)
-        elevation = 1200.0
-        slope = 5.0
-        land_cover = 2.0  # puede representar un tipo de vegetación, por ejemplo
+        # # Valores simulados o predeterminados (ajusta según tu dataset real)
+        # elevation = 1200.0
+        # slope = 5.0
+        # land_cover = 2.0  # puede representar un tipo de vegetación, por ejemplo
 
-        X_input = np.array([[lat, lon, elevation, slope, land_cover]])
+        # X_input = np.array([[lat, lon, elevation, slope, land_cover]])
 
-        region_name = "south_america"
-        model = regional_models[region_name]["models"]
+        # region_name = "south_america"
+        # model = regional_models[region_name]["models"]
 
-        preds = model.predict(X_input)
+        # preds = model.predict(X_input)
 
         return jsonify({
             "prediction_metadata": {
