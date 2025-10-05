@@ -141,10 +141,13 @@ def predict_fire_risk():
         bbox_corners = data['bbox_corners']
         forecast_date = data['forecast_date']
         
-        # 2. Validar coordenadas
-        is_valid, error_message = validate_bbox_coordinates(bbox_corners)
+        # 2. Validar coordenadas y normalizar formato
+        is_valid, error_message, normalized_bbox = validate_bbox_coordinates(bbox_corners)
         if not is_valid:
             return jsonify({"error": error_message}), 400
+        
+        # Usar bbox normalizado (siempre en formato [lat, lon])
+        bbox_corners = normalized_bbox
         
         # 3. Validar modelo
         if not predictor.is_loaded:
