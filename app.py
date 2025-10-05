@@ -18,7 +18,7 @@ load_dotenv()
 
 # Inicializar Flask
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configuración
 MODEL_PATH = os.getenv('MODEL_PATH', 'models/fire_prediction_models_complete.pkl')
