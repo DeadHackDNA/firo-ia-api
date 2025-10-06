@@ -250,9 +250,10 @@ class EarthEngineAPI:
             lon: Longitud
             
         Returns:
-            Dict completo con terrain solamente (sin vegetation)
+            Dict completo con terrain y vegetation
         """
         terrain = self.get_terrain_data(lat, lon)
+        vegetation = self.get_vegetation_data(lat, lon)
         land_cover = self.get_land_cover(lat, lon)
         
         return {
@@ -260,7 +261,8 @@ class EarthEngineAPI:
                 'elevation': terrain['elevation'],
                 'slope': terrain['slope'],
                 'land_cover': land_cover
-            }
+            },
+            'vegetation': vegetation
         }
     
     # Métodos de simulación (fallback cuando GEE no está disponible)
