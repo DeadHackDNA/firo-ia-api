@@ -1,8 +1,0 @@
-# Nixpacks configuration for Railway
-# Instala dependencias del sistema necesarias para LightGBM
-
-[phases.setup]
-aptPkgs = ["libgomp1"]
-
-[start]
-cmd = "gunicorn -c gunicorn_config.py app:app"

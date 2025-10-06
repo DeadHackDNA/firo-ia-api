@@ -29,6 +29,10 @@ ENV/
 .env
 .env.local
 
+# Google Earth Engine Credentials
+earth-engine-credentials.json
+*.json.key
+
 # Flask
 instance/
 .webassets-cache

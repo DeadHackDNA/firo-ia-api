@@ -1,7 +1,61 @@
 import numpy as np
+import random
 
 
-def create_optimized_api_response(predictions, forecast_date, bbox_corners):
+def sample_random_predictions(predictions, num_samples=4):
+    """
+    Selecciona aleatoriamente N puntos de las predicciones
+    
+    Args:
+        predictions: Lista completa de predicciones (25 puntos)
+        num_samples: Número de puntos a muestrear (default: 4)
+        
+    Returns:
+        Lista con predicciones muestreadas
+    """
+    if len(predictions) <= num_samples:
+        return predictions
+    
+    # Muestreo aleatorio sin reemplazo
+    sampled = random.sample(predictions, num_samples)
+    
+    print(f"📊 Muestreando {num_samples} puntos de {len(predictions)} disponibles")
+    
+    return sampled
+
+
+def enrich_predictions_with_terrain(predictions):
+    """
+    Enriquece predicciones con datos de Earth Engine
+    
+    Args:
+        predictions: Lista de predicciones básicas
+        
+    Returns:
+        Lista de predicciones con datos de terreno y vegetación
+    """
+    from utils.earth_engine_api import earth_engine_client
+    
+    enriched = []
+    
+    for pred in predictions:
+        lat = pred['latitude']
+        lon = pred['longitude']
+        
+        # Obtener datos completos de Earth Engine
+        terrain_info = earth_engine_client.get_complete_terrain_info(lat, lon)
+        
+        # Agregar a predicción existente
+        enriched_pred = pred.copy()
+        enriched_pred['terrain'] = terrain_info['terrain']
+        enriched_pred['vegetation'] = terrain_info['vegetation']
+        
+        enriched.append(enriched_pred)
+    
+    return enriched
+
+
+def create_optimized_api_response(predictions, forecast_date, bbox_corners, num_samples=4):
     """
     Crea respuesta JSON optimizada según el formato especificado
     
@@ -9,6 +63,7 @@ def create_optimized_api_response(predictions, forecast_date, bbox_corners):
         predictions: Lista de predicciones
         forecast_date: Fecha de predicción
         bbox_corners: Coordenadas del área analizada
+        num_samples: Número de puntos a devolver (default: 4)
         
     Returns:
         dict: Respuesta JSON estructurada
@@ -26,7 +81,13 @@ def create_optimized_api_response(predictions, forecast_date, bbox_corners):
             }
         }
     
-    # Calcular estadísticas
+    # 1. Muestrear puntos aleatorios (de 25 a 4)
+    sampled_predictions = sample_random_predictions(predictions, num_samples)
+    
+    # 2. Enriquecer con datos de Earth Engine
+    enriched_predictions = enrich_predictions_with_terrain(sampled_predictions)
+    
+    # Calcular estadísticas (sobre todos los puntos originales)
     fire_probs = [p['fire_probability'] for p in predictions]
     avg_prob = np.mean(fire_probs)
     max_prob = np.max(fire_probs)
@@ -42,14 +103,16 @@ def create_optimized_api_response(predictions, forecast_date, bbox_corners):
         overall_level = 'LOW'
         alert_level = 1
     
-    # Construir risk_grid
+    # Construir risk_grid con datos enriquecidos
     risk_grid = []
-    for pred in predictions:
+    for pred in enriched_predictions:
         risk_grid.append({
             "lat": pred['latitude'],
             "lon": pred['longitude'],
             "fire_risk_percentage": pred['fire_probability'],
-            "risk_category": pred['risk_level']
+            "risk_category": pred['risk_level'],
+            "terrain": pred['terrain'],
+            "vegetation": pred['vegetation']
         })
     
     # Generar recomendaciones
